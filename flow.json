@@ -23,6 +23,20 @@
         "certname": "",
         "keyname": "",
         "caname": "",
+        "servername": "",
+        "verifyservercert": false
+    },
+    {
+        "id": "9b676bdd.f0c15",
+        "type": "tls-config",
+        "name": "",
+        "cert": "",
+        "key": "",
+        "ca": "",
+        "certname": "",
+        "keyname": "",
+        "caname": "",
+        "servername": "",
         "verifyservercert": false
     },
     {
@@ -30,6 +44,18 @@
         "type": "inject",
         "z": "8f99ef41.b6e0f",
         "name": "",
+        "props": [
+            {
+                "p": "payload",
+                "v": "",
+                "vt": "date"
+            },
+            {
+                "p": "topic",
+                "v": "",
+                "vt": "string"
+            }
+        ],
         "repeat": "",
         "crontab": "",
         "once": true,
@@ -40,7 +66,7 @@
         "y": 120,
         "wires": [
             [
-                "85a1b072.9a506"
+                "952d970d.157808"
             ]
         ]
     },
@@ -56,7 +82,9 @@
         "x": 440,
         "y": 120,
         "wires": [
-            []
+            [
+                "global-3"
+            ]
         ]
     },
     {
@@ -65,7 +93,7 @@
         "z": "8f99ef41.b6e0f",
         "property": "payload",
         "name": "",
-        "x": 710,
+        "x": 670,
         "y": 120,
         "wires": [
             [
@@ -83,7 +111,7 @@
         "noerr": 0,
         "initialize": "",
         "finalize": "",
-        "x": 840,
+        "x": 860,
         "y": 120,
         "wires": [
             [
@@ -223,8 +251,13 @@
         "z": "8f99ef41.b6e0f",
         "name": "",
         "active": true,
-        "console": "false",
-        "complete": "false",
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
         "x": 1050,
         "y": 120,
         "wires": []
@@ -346,33 +379,6 @@
         ]
     },
     {
-        "id": "85a1b072.9a506",
-        "type": "change",
-        "z": "8f99ef41.b6e0f",
-        "name": "globals",
-        "rules": [
-            {
-                "t": "set",
-                "p": "payload",
-                "pt": "msg",
-                "to": "{\"elasticsearch.url\":\"http://localhost:9220\",\"node-red.url\":\"http://localhost:1880\",\"api.url\":\"http://localhost:4000\"}",
-                "tot": "json"
-            }
-        ],
-        "action": "",
-        "property": "",
-        "from": "",
-        "to": "",
-        "reg": false,
-        "x": 440,
-        "y": 180,
-        "wires": [
-            [
-                "global-3"
-            ]
-        ]
-    },
-    {
         "id": "{{_id}}-core-1",
         "type": "comment",
         "z": "87c2d7eb.504c98",
@@ -442,11 +448,14 @@
         "func": "var parameters = msg.payload.parameters;\nvar parameterNames = [];\n\nparameters.forEach(function(param) {\n    parameterNames.push(param.key)\n    \n    flow.set(param.key, param.value)\n})\n\nflow.set('params', parameterNames);\n\nmsg.payload = parameters\n\nreturn msg;",
         "outputs": 1,
         "noerr": 0,
+        "initialize": "",
+        "finalize": "",
         "x": 790,
         "y": 140,
         "wires": [
             [
-                "{{_id}}-41"
+                "{{_id}}-41",
+                "c05e9001.424f7"
             ]
         ]
     },
@@ -1029,7 +1038,7 @@
         "arraySpltType": "len",
         "stream": false,
         "addname": "",
-        "x": 370,
+        "x": 390,
         "y": 940,
         "wires": [
             [
@@ -1092,14 +1101,17 @@
         "type": "function",
         "z": "87c2d7eb.504c98",
         "name": "",
-        "func": "if (msg.payload) {\n    var operation = {\n        \"_index\": \"{{_index}}\",\n        \"_type\": \"default\"\n    }\n    \n    var data = msg.payload\n        \n    var uniqueField = flow.get('uniqueField');\n    var forceStrings = flow.get('forceStrings');\n    \n    \n    for (var k in data) {\n        if (forceStrings) {\n            data[k] = String(data[k])\n        }\n        \n        newK = k.replace(/\\./g,'_')\n        \n        if (newK != k) {\n            data[newK] = data[k]\n            delete data[k]\n        }\n    }\n    \n    if (uniqueField && uniqueField !== '' && msg.payload[uniqueField]) {\n        operation['_id'] = msg.payload[uniqueField]\n    }\n    \n    var newMsg1 = {};\n    newMsg1.payload = JSON.stringify({index: operation})\n    msg.payload = JSON.stringify(data)\n    \n    if (msg.parts.index == (msg.parts.count - 1)) {\n        msg.complete = true\n    }\n    \n    return [[newMsg1,msg]];\n}",
+        "func": "if (msg.payload) {\n    var operation = {\n        \"_index\": \"demo-historical-price\",\n        \"_type\": \"default\"\n    }\n    \n    var data = msg.historical\n        \n    var uniqueField = flow.get('uniqueField');\n    var forceStrings = flow.get('forceStrings');\n    \n    return data;\n    \n    // for (var k in data) {\n    //     if (forceStrings) {\n    //         data[k] = String(data[k])\n    //     }\n        \n    //     newK = k.replace(/\\./g,'_')\n        \n    //     if (newK != k) {\n    //         data[newK] = data[k]\n    //         delete data[k]\n    //     }\n    // }\n    \n    // if (uniqueField && uniqueField !== '' && msg.payload[uniqueField]) {\n    //     operation['_id'] = msg.payload[uniqueField]\n    // }\n    \n    // var newMsg1 = {};\n    // newMsg1.payload = JSON.stringify({index: operation})\n    // msg.payload = JSON.stringify(data)\n    \n    // if (msg.parts.index == (msg.parts.count - 1)) {\n    //     msg.complete = true\n    // }\n    \n    // return [[newMsg1,msg]];\n}",
         "outputs": "1",
         "noerr": 0,
-        "x": 250,
-        "y": 1040,
+        "initialize": "",
+        "finalize": "",
+        "x": 260,
+        "y": 1080,
         "wires": [
             [
-                "{{_id}}-11"
+                "{{_id}}-12",
+                "81b18601.f6e25"
             ]
         ]
     },
@@ -1118,12 +1130,15 @@
         "accumulate": false,
         "timeout": "",
         "count": "10000",
+        "reduceRight": false,
+        "reduceExp": "",
+        "reduceInit": "",
+        "reduceInitType": "",
+        "reduceFixup": "",
         "x": 370,
-        "y": 1040,
+        "y": 1000,
         "wires": [
-            [
-                "{{_id}}-12"
-            ]
+            []
         ]
     },
     {
@@ -1134,6 +1149,8 @@
         "func": "msg.payload += \"\\n\"\n\nvar insertData = msg.payload;\n\nmsg.url = global.get('node-red').url + '/elasticsearch';\nmsg.method = 'POST'\n\nmsg.payload = {\n    path: '/_bulk',\n    method: 'POST',\n    payload: insertData\n}\n\n\ndelete msg.headers\nreturn msg;",
         "outputs": 1,
         "noerr": 0,
+        "initialize": "",
+        "finalize": "",
         "x": 490,
         "y": 1040,
         "wires": [
@@ -1149,8 +1166,12 @@
         "name": "",
         "method": "use",
         "ret": "obj",
+        "paytoqs": "ignore",
         "url": "",
         "tls": "",
+        "persist": false,
+        "proxy": "",
+        "authType": "",
         "x": 630,
         "y": 1040,
         "wires": [
@@ -1247,15 +1268,16 @@
         "propertyType": "flow",
         "rules": [
             {
-                "vt": "str",
                 "t": "eq",
-                "v": "true"
+                "v": "true",
+                "vt": "str"
             },
             {
                 "t": "else"
             }
         ],
         "checkall": "false",
+        "repair": false,
         "outputs": 2,
         "x": 390,
         "y": 800,
@@ -1388,8 +1410,11 @@
         "z": "87c2d7eb.504c98",
         "name": "",
         "active": true,
-        "console": "false",
+        "tosidebar": true,
+        "console": false,
         "complete": "true",
+        "statusVal": "",
+        "statusType": "auto",
         "x": 1010,
         "y": 140,
         "wires": []
@@ -1438,6 +1463,8 @@
         "func": "var newMsg = {}\n\nnewMsg.filename = msg.payload.path\nreturn newMsg;",
         "outputs": 1,
         "noerr": 0,
+        "initialize": "",
+        "finalize": "",
         "x": 520,
         "y": 940,
         "wires": [
@@ -1454,6 +1481,8 @@
         "func": "if (msg.req.files && msg.req.files.file) {\n    msg.files = msg.req.files.file\n    return msg\n} else {\n    node.error('No file found in payload.');\n}",
         "outputs": 1,
         "noerr": 0,
+        "initialize": "",
+        "finalize": "",
         "x": 250,
         "y": 800,
         "wires": [
@@ -1470,6 +1499,8 @@
         "func": "msg.payload = msg.files\nreturn msg",
         "outputs": 1,
         "noerr": 0,
+        "initialize": "",
+        "finalize": "",
         "x": 250,
         "y": 940,
         "wires": [
@@ -1512,6 +1543,8 @@
         "type": "json",
         "z": "87c2d7eb.504c98",
         "name": "",
+        "property": "payload",
+        "action": "",
         "pretty": false,
         "x": 774.5,
         "y": 939,
@@ -1548,11 +1581,142 @@
         "func": "var dataPath = flow.get('dataPath');\n\nif (dataPath && dataPath != '.') {\n    msg.payload = msg.payload[dataPath]\n}\n\nreturn msg;",
         "outputs": 1,
         "noerr": 0,
-        "x": 910,
-        "y": 940,
+        "initialize": "",
+        "finalize": "",
+        "x": 900,
+        "y": 900,
         "wires": [
             [
                 "{{_id}}-53"
+            ]
+        ]
+    },
+    {
+        "id": "e6d6e1e0.0b498",
+        "type": "http request",
+        "z": "87c2d7eb.504c98",
+        "name": "",
+        "method": "GET",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "https://financialmodelingprep.com/api/v3/historical-price-full/AAPL?apikey=demo",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "authType": "",
+        "x": 390,
+        "y": 1260,
+        "wires": [
+            [
+                "{{_id}}-10"
+            ]
+        ]
+    },
+    {
+        "id": "81b18601.f6e25",
+        "type": "debug",
+        "z": "87c2d7eb.504c98",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 630,
+        "y": 1260,
+        "wires": []
+    },
+    {
+        "id": "dcf88a3c.ebc44",
+        "type": "inject",
+        "z": "87c2d7eb.504c98",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 200,
+        "y": 1260,
+        "wires": [
+            [
+                "e6d6e1e0.0b498"
+            ]
+        ]
+    },
+    {
+        "id": "952d970d.157808",
+        "type": "function",
+        "z": "8f99ef41.b6e0f",
+        "name": "",
+        "func": "params = {\n    \"elasticsearch\": {\n        \"url\": \"http://172.17.0.3:9220\"\n    },\n    \"node-red\": {\n        \"url\" : \"http://localhost:1880\"\n    },\n    \"api\" : {\n        \"url\" : \"http://localhost:4000\"\n    }\n}\nmsg.payload = params\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "x": 520,
+        "y": 200,
+        "wires": [
+            [
+                "global-4"
+            ]
+        ]
+    },
+    {
+        "id": "d1e847b.e072ab8",
+        "type": "comment",
+        "z": "87c2d7eb.504c98",
+        "name": "settings",
+        "info": "{\n  \"name\": \"JSON File\",\n  \"description\": \"Use this source to upload JSON files containing data records and store that data in ES.\",\n  \"groups\": [\n      {\n          \"key\": \"fileInformation\",\n          \"title\": \"Information about the file\",\n          \"description\": \"Upload your file. This source expects the file to be an array, if the array is contained in an object specify the data path below.\"\n      },\n      {\n          \"key\": \"indexInformation\",\n          \"title\": \"Data Storage Options\",\n          \"description\": \"You can use the options below to configure whether the data should be cleared upon further uploads or if the new data should be merged with the old. Merging while using a unique field allows for incremental loading.\"\n      }\n  ],\n  \"parameters\": [\n      {\n          \"type\": \"file\",\n          \"group\": \"fileInformation\",\n          \"name\": \"file\",\n          \"label\": \"File to Upload\",\n          \"description\": \"Select the file you would like to upload.\"\n      },\n      {\n        \"type\": \"boolean\",\n        \"group\": \"fileInformation\",\n        \"name\": \"dataPath\",\n        \"label\": \"Key that contains data array\",\n        \"description\": \"By default this source assumes that the JSON file is an array of data. If the array is contained in an object specify the key here.\"\n      },\n      {\n          \"type\": \"boolean\",\n          \"group\": \"fileInformation\",\n          \"name\": \"forceStrings\",\n          \"label\": \"Force all Values to Strings\",\n          \"description\": \"Managing ES Mappings can be difficult. Use this toggle to force all values to be saved as strings. You can always use the reindex api later to change the mapping types.\"\n      },\n      {\n          \"type\": \"boolean\",\n          \"group\": \"indexInformation\",\n          \"name\": \"truncate\",\n          \"label\": \"Overwrite on Future Uploads\",\n          \"description\": \"Set this to true if you would like to delete all of the data for this source before loading new data. Setting this to true allows a 'truncate before load' leaving it false allows incremental loading.\"\n      },\n      {\n          \"type\": \"text\",\n          \"group\": \"indexInformation\",\n          \"name\": \"uniqueField\",\n          \"label\": \"Unique Field for Incremental Loading and Deduplication\",\n          \"description\": \"Set a field here to be used for the id of the record. Setting this allows for incremental loading and updating of existing records with the same ID.\"\n      }\n  ],",
+        "x": 450,
+        "y": 100,
+        "wires": []
+    },
+    {
+        "id": "c05e9001.424f7",
+        "type": "change",
+        "z": "87c2d7eb.504c98",
+        "name": "",
+        "rules": [
+            {
+                "t": "set",
+                "p": "truncate",
+                "pt": "flow",
+                "to": "true",
+                "tot": "str"
+            },
+            {
+                "t": "set",
+                "p": "forceStrings",
+                "pt": "flow",
+                "to": "true",
+                "tot": "str"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 1100,
+        "y": 280,
+        "wires": [
+            [
+                "{{_id}}-41"
             ]
         ]
     }
