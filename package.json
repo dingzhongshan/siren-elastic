@@ -1,0 +1,12 @@
+{
+    "name": "siren-elastic",
+    "description": "siren elastic flow",
+    "version": "0.0.1",
+    "dependencies": {},
+    "node-red": {
+        "settings": {
+            "flowFile": "flow.json",
+            "credentialsFile": "flow_cred.json"
+        }
+    }
+}
