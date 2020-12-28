@@ -1,1 +1,368 @@
-[]
+[
+    {
+        "id": "8f99ef41.b6e0f",
+        "type": "tab",
+        "label": "Global Settings",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "global-16",
+        "type": "tls-config",
+        "name": "",
+        "cert": "/data/conveyor/elasticsearch.crt",
+        "key": "/data/conveyor/elasticsearch.key",
+        "ca": "/data/conveyor/ca.crt",
+        "certname": "",
+        "keyname": "",
+        "caname": "",
+        "verifyservercert": false
+    },
+    {
+        "id": "global-1",
+        "type": "inject",
+        "z": "8f99ef41.b6e0f",
+        "name": "",
+        "repeat": "",
+        "crontab": "",
+        "once": true,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 130,
+        "y": 120,
+        "wires": [
+            [
+                "85a1b072.9a506"
+            ]
+        ]
+    },
+    {
+        "id": "global-2",
+        "type": "file in",
+        "z": "8f99ef41.b6e0f",
+        "name": "",
+        "filename": "/usr/src/app/config/conveyor.yml",
+        "format": "utf8",
+        "chunk": false,
+        "sendError": false,
+        "x": 400,
+        "y": 120,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "global-3",
+        "type": "yaml",
+        "z": "8f99ef41.b6e0f",
+        "property": "payload",
+        "name": "",
+        "x": 670,
+        "y": 120,
+        "wires": [
+            [
+                "global-4"
+            ]
+        ]
+    },
+    {
+        "id": "global-4",
+        "type": "function",
+        "z": "8f99ef41.b6e0f",
+        "name": "",
+        "func": "var globalVariables = Object.keys(msg.payload);\n\nfor (var i=0; i<globalVariables.length; i++) {\n    global.set(globalVariables[i], msg.payload[globalVariables[i]])\n}\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "x": 800,
+        "y": 120,
+        "wires": [
+            [
+                "global-5"
+            ]
+        ]
+    },
+    {
+        "id": "global-6",
+        "type": "comment",
+        "z": "8f99ef41.b6e0f",
+        "name": "Load Global Context Variables",
+        "info": "",
+        "x": 200,
+        "y": 80,
+        "wires": []
+    },
+    {
+        "id": "global-7",
+        "type": "switch",
+        "z": "8f99ef41.b6e0f",
+        "name": "",
+        "property": "elasticsearch.useTLS",
+        "propertyType": "global",
+        "rules": [
+            {
+                "t": "true"
+            },
+            {
+                "t": "else"
+            }
+        ],
+        "checkall": "false",
+        "outputs": 2,
+        "x": 490,
+        "y": 400,
+        "wires": [
+            [
+                "global-8"
+            ],
+            [
+                "global-9"
+            ]
+        ]
+    },
+    {
+        "id": "global-8",
+        "type": "http request",
+        "z": "8f99ef41.b6e0f",
+        "name": "Basic Auth with SSL",
+        "method": "use",
+        "ret": "obj",
+        "url": "",
+        "tls": "global-16",
+        "x": 680,
+        "y": 380,
+        "wires": [
+            [
+                "global-13"
+            ]
+        ]
+    },
+    {
+        "id": "global-9",
+        "type": "http request",
+        "z": "8f99ef41.b6e0f",
+        "name": "Basic Auth without SSL",
+        "method": "use",
+        "ret": "obj",
+        "url": "",
+        "tls": "",
+        "x": 690,
+        "y": 420,
+        "wires": [
+            [
+                "global-13"
+            ]
+        ]
+    },
+    {
+        "id": "global-10",
+        "type": "comment",
+        "z": "8f99ef41.b6e0f",
+        "name": "Elasticsearch Query Proxy",
+        "info": "This endpoint exists to simplify the connection to Elasticsearch.\n\nIt could certainly be cleaned up by creating a http node that accept auth changes on the fly or by creating a better ES node.",
+        "x": 190,
+        "y": 360,
+        "wires": []
+    },
+    {
+        "id": "global-11",
+        "type": "http in",
+        "z": "8f99ef41.b6e0f",
+        "name": "",
+        "url": "/elasticsearch",
+        "method": "post",
+        "upload": false,
+        "swaggerDoc": "",
+        "x": 170,
+        "y": 400,
+        "wires": [
+            [
+                "global-12"
+            ]
+        ]
+    },
+    {
+        "id": "global-12",
+        "type": "function",
+        "z": "8f99ef41.b6e0f",
+        "name": "",
+        "func": "delete msg.req, msg.res;\n\nvar es = global.get('elasticsearch');\n\nvar errors = [];\n\nif (es) {\n    var url = es.url;\n} else {\n    errors.push('No ES Connection found in the Global Configuraiton.')\n}\n\nvar request = msg.payload;\n\nif (request.path) {\n    msg.url = url + request.path;\n} else {\n    errors.push('No path found in payload')   \n}\n\nif (request.payload) {\n    msg.payload = request.payload\n}\n\nif (request.method) {\n    msg.method = request.method\n} else {\n    msg.method = 'GET'\n}\n\nmsg.headers = {\n    'Content-Type': 'application/json'\n}\n\nif (global.get('elasticsearch') && global.get('elasticsearch').basicAuth) {\n    var basicAuth = global.get('elasticsearch').basicAuth;\n    if ( basicAuth.username && basicAuth.password) {\n        var username = basicAuth.username;\n        var password = basicAuth.password;\n        var crypt = new Buffer(username + ':' + password).toString('base64')\n        var authStr = 'Basic ' + crypt\n\n        msg.headers.Authorization = authStr;\n    } else {\n        errors.push('Basic Auth Specified, but no username or password found.')   \n    }\n}\n\nmsg.errors = errors;\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 350,
+        "y": 400,
+        "wires": [
+            [
+                "global-7"
+            ]
+        ]
+    },
+    {
+        "id": "global-13",
+        "type": "http response",
+        "z": "8f99ef41.b6e0f",
+        "name": "",
+        "statusCode": "",
+        "headers": {},
+        "x": 910,
+        "y": 400,
+        "wires": []
+    },
+    {
+        "id": "global-5",
+        "type": "debug",
+        "z": "8f99ef41.b6e0f",
+        "name": "",
+        "active": true,
+        "console": "false",
+        "complete": "false",
+        "x": 1010,
+        "y": 120,
+        "wires": []
+    },
+    {
+        "id": "global-14",
+        "type": "comment",
+        "z": "8f99ef41.b6e0f",
+        "name": "Kibana Query Proxy",
+        "info": "This endpoint exists to simplify the connection to Kibana.\n\nIt could certainly be cleaned up by creating a http node that accept auth changes on the fly or by creating a better ES node.",
+        "x": 170,
+        "y": 460,
+        "wires": []
+    },
+    {
+        "id": "global-15",
+        "type": "switch",
+        "z": "8f99ef41.b6e0f",
+        "name": "",
+        "property": "kibana.useTLS",
+        "propertyType": "global",
+        "rules": [
+            {
+                "t": "true"
+            },
+            {
+                "t": "else"
+            }
+        ],
+        "checkall": "false",
+        "outputs": 2,
+        "x": 490,
+        "y": 500,
+        "wires": [
+            [
+                "global-21"
+            ],
+            [
+                "global-17"
+            ]
+        ]
+    },
+    {
+        "id": "global-17",
+        "type": "http request",
+        "z": "8f99ef41.b6e0f",
+        "name": "Basic Auth without SSL",
+        "method": "use",
+        "ret": "obj",
+        "url": "",
+        "tls": "",
+        "x": 670,
+        "y": 540,
+        "wires": [
+            [
+                "global-20"
+            ]
+        ]
+    },
+    {
+        "id": "global-18",
+        "type": "http in",
+        "z": "8f99ef41.b6e0f",
+        "name": "",
+        "url": "/kibana",
+        "method": "post",
+        "upload": false,
+        "swaggerDoc": "",
+        "x": 150,
+        "y": 500,
+        "wires": [
+            [
+                "global-19"
+            ]
+        ]
+    },
+    {
+        "id": "global-19",
+        "type": "function",
+        "z": "8f99ef41.b6e0f",
+        "name": "",
+        "func": "delete msg.req, msg.res;\n\nvar kibana = global.get('kibana');\n\nvar errors = [];\n\nif (kibana) {\n    var url = kibana.url;\n} else {\n    errors.push('No ES Connection found in the Global Configuraiton.')\n}\n\nvar request = msg.payload;\n\nif (request.path) {\n    msg.url = url + request.path;\n} else {\n    errors.push('No path found in payload')   \n}\n\nif (request.payload) {\n    msg.payload = request.payload\n}\n\nif (request.method) {\n    msg.method = request.method\n} else {\n    msg.method = 'GET'\n}\n\nmsg.headers = {\n    'Content-Type': 'application/json',\n    'kbn-xsrf': 'conveyor'\n}\n\nif (global.get('kibana') && global.get('kibana').basicAuth) {\n    var basicAuth = global.get('kibana').basicAuth;\n    if ( basicAuth.username && basicAuth.password) {\n        var username = basicAuth.username;\n        var password = basicAuth.password;\n        var crypt = new Buffer(username + ':' + password).toString('base64')\n        var authStr = 'Basic ' + crypt\n\n        msg.headers.Authorization = authStr;\n    } else {\n        errors.push('Basic Auth Specified, but no username or password found.')   \n    }\n}\n\nmsg.errors = errors;\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 350,
+        "y": 500,
+        "wires": [
+            [
+                "global-15"
+            ]
+        ]
+    },
+    {
+        "id": "global-20",
+        "type": "http response",
+        "z": "8f99ef41.b6e0f",
+        "name": "",
+        "statusCode": "",
+        "headers": {},
+        "x": 910,
+        "y": 500,
+        "wires": []
+    },
+    {
+        "id": "global-21",
+        "type": "http request",
+        "z": "8f99ef41.b6e0f",
+        "name": "Basic Auth with SSL",
+        "method": "use",
+        "ret": "obj",
+        "url": "",
+        "tls": "global-16",
+        "x": 680,
+        "y": 480,
+        "wires": [
+            [
+                "global-20"
+            ]
+        ]
+    },
+    {
+        "id": "85a1b072.9a506",
+        "type": "change",
+        "z": "8f99ef41.b6e0f",
+        "name": "globals",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "{\"elasticsearch.url\":\"http://localhost:9220\",\"node-red.url\":\"http://localhost:1880\",\"api.url\":\"http://localhost:4000\"}",
+                "tot": "json"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 380,
+        "y": 180,
+        "wires": [
+            [
+                "global-3"
+            ]
+        ]
+    }
+]
