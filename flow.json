@@ -7,6 +7,13 @@
         "info": ""
     },
     {
+        "id": "87c2d7eb.504c98",
+        "type": "tab",
+        "label": "Json",
+        "disabled": false,
+        "info": ""
+    },
+    {
         "id": "global-16",
         "type": "tls-config",
         "name": "",
@@ -29,7 +36,7 @@
         "topic": "",
         "payload": "",
         "payloadType": "date",
-        "x": 130,
+        "x": 170,
         "y": 120,
         "wires": [
             [
@@ -46,7 +53,7 @@
         "format": "utf8",
         "chunk": false,
         "sendError": false,
-        "x": 400,
+        "x": 440,
         "y": 120,
         "wires": [
             []
@@ -58,7 +65,7 @@
         "z": "8f99ef41.b6e0f",
         "property": "payload",
         "name": "",
-        "x": 670,
+        "x": 710,
         "y": 120,
         "wires": [
             [
@@ -76,7 +83,7 @@
         "noerr": 0,
         "initialize": "",
         "finalize": "",
-        "x": 800,
+        "x": 840,
         "y": 120,
         "wires": [
             [
@@ -90,7 +97,7 @@
         "z": "8f99ef41.b6e0f",
         "name": "Load Global Context Variables",
         "info": "",
-        "x": 200,
+        "x": 240,
         "y": 80,
         "wires": []
     },
@@ -218,7 +225,7 @@
         "active": true,
         "console": "false",
         "complete": "false",
-        "x": 1010,
+        "x": 1050,
         "y": 120,
         "wires": []
     },
@@ -357,11 +364,1195 @@
         "from": "",
         "to": "",
         "reg": false,
-        "x": 380,
+        "x": 440,
         "y": 180,
         "wires": [
             [
                 "global-3"
+            ]
+        ]
+    },
+    {
+        "id": "{{_id}}-core-1",
+        "type": "comment",
+        "z": "87c2d7eb.504c98",
+        "name": "Load Configuration on Start-Up",
+        "info": "",
+        "x": 250,
+        "y": 100,
+        "wires": []
+    },
+    {
+        "id": "{{_id}}-core-2",
+        "type": "inject",
+        "z": "87c2d7eb.504c98",
+        "name": "",
+        "repeat": "",
+        "crontab": "",
+        "once": true,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 210,
+        "y": 140,
+        "wires": [
+            [
+                "{{_id}}-core-3"
+            ]
+        ]
+    },
+    {
+        "id": "{{_id}}-core-3",
+        "type": "function",
+        "z": "87c2d7eb.504c98",
+        "name": "Format",
+        "func": "msg = {\n    url: global.get('conveyor-api').url + '/flow/{{_url}}',\n    method: 'GET'\n}\n\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 360,
+        "y": 140,
+        "wires": [
+            [
+                "{{_id}}-core-4"
+            ]
+        ]
+    },
+    {
+        "id": "{{_id}}-core-4",
+        "type": "http request",
+        "z": "87c2d7eb.504c98",
+        "name": "",
+        "method": "use",
+        "ret": "obj",
+        "url": "",
+        "tls": "",
+        "x": 510,
+        "y": 140,
+        "wires": [
+            [
+                "{{_id}}-core-39"
+            ]
+        ]
+    },
+    {
+        "id": "{{_id}}-core-5",
+        "type": "function",
+        "z": "87c2d7eb.504c98",
+        "name": "",
+        "func": "var parameters = msg.payload.parameters;\nvar parameterNames = [];\n\nparameters.forEach(function(param) {\n    parameterNames.push(param.key)\n    \n    flow.set(param.key, param.value)\n})\n\nflow.set('params', parameterNames);\n\nmsg.payload = parameters\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 790,
+        "y": 140,
+        "wires": [
+            [
+                "{{_id}}-41"
+            ]
+        ]
+    },
+    {
+        "id": "{{_id}}-core-6",
+        "type": "comment",
+        "z": "87c2d7eb.504c98",
+        "name": "Configuration Endpoints",
+        "info": "",
+        "x": 230,
+        "y": 200,
+        "wires": []
+    },
+    {
+        "id": "{{_id}}-core-7",
+        "type": "http in",
+        "z": "87c2d7eb.504c98",
+        "name": "",
+        "url": "/{{_url}}/config",
+        "method": "get",
+        "upload": false,
+        "swaggerDoc": "",
+        "x": 220,
+        "y": 240,
+        "wires": [
+            [
+                "{{_id}}-core-8"
+            ]
+        ]
+    },
+    {
+        "id": "{{_id}}-core-8",
+        "type": "function",
+        "z": "87c2d7eb.504c98",
+        "name": "",
+        "func": "var paramNames = flow.get('params');\nvar parameters = {};\n\nparamNames.forEach(function(name) {\n    parameters[name] = flow.get(name);\n})\n\nmsg.payload = parameters\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 730,
+        "y": 240,
+        "wires": [
+            [
+                "{{_id}}-44"
+            ]
+        ]
+    },
+    {
+        "id": "{{_id}}-core-9",
+        "type": "http response",
+        "z": "87c2d7eb.504c98",
+        "name": "",
+        "statusCode": "",
+        "headers": {},
+        "x": 1010,
+        "y": 180,
+        "wires": []
+    },
+    {
+        "id": "{{_id}}-core-10",
+        "type": "http in",
+        "z": "87c2d7eb.504c98",
+        "name": "",
+        "url": "/{{_url}}/config",
+        "method": "post",
+        "upload": false,
+        "swaggerDoc": "",
+        "x": 220,
+        "y": 280,
+        "wires": [
+            [
+                "{{_id}}-core-11"
+            ]
+        ]
+    },
+    {
+        "id": "{{_id}}-core-11",
+        "type": "function",
+        "z": "87c2d7eb.504c98",
+        "name": "",
+        "func": "msg.payload = 'Post is currently not supported. Use PUT to update.'\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 730,
+        "y": 280,
+        "wires": [
+            [
+                "{{_id}}-44"
+            ]
+        ]
+    },
+    {
+        "id": "{{_id}}-core-12",
+        "type": "http in",
+        "z": "87c2d7eb.504c98",
+        "name": "",
+        "url": "/{{_url}}/config",
+        "method": "put",
+        "upload": false,
+        "swaggerDoc": "",
+        "x": 220,
+        "y": 320,
+        "wires": [
+            [
+                "{{_id}}-core-13"
+            ]
+        ]
+    },
+    {
+        "id": "{{_id}}-core-13",
+        "type": "function",
+        "z": "87c2d7eb.504c98",
+        "name": "",
+        "func": "var paramNames = flow.get('params');\nvar updates = [];\nvar errors = [];\n\nif (msg.payload) {\n    var paramsToUpdate = Object.keys(msg.payload);\n    \n    paramsToUpdate.forEach(function(update) {\n        if (paramNames.includes(update)) {\n            var updateParam = {\n                key: update,\n                value: msg.payload[update]\n            }\n            \n            updates.push(updateParam)\n        } else {\n            errors.push('Parameter [' + update + '] not valid.');\n        }\n    })\n} else {\n    errors.push('No Payload found');\n}\n\nif (errors.length > 0) {\n    msg.payload = errors\n} else {\n    updates.forEach(function(update) {\n        flow.set(update.key, update.value)\n    })\n    \n    var elasticParamsUpdate = [];\n    paramNames.forEach(function(param) {\n        elasticParamsUpdate.push({\n            \"key\": param,\n            \"value\": flow.get(param)\n        })\n    })\n    \n    msg.url = global.get('node-red').url + '/elasticsearch',\n    msg.method = 'POST',\n    msg.payload = {};\n    msg.payload.path = '/flow/default/{{_id}}/_update'\n    msg.payload.method = 'POST',\n    msg.payload.payload = {\n        \"doc\" : {\n        \"parameters\" : elasticParamsUpdate\n        }\n    }\n}\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 450,
+        "y": 320,
+        "wires": [
+            [
+                "{{_id}}-core-18"
+            ]
+        ]
+    },
+    {
+        "id": "{{_id}}-core-14",
+        "type": "http in",
+        "z": "87c2d7eb.504c98",
+        "name": "",
+        "url": "/{{_url}}/config",
+        "method": "delete",
+        "upload": false,
+        "swaggerDoc": "",
+        "x": 210,
+        "y": 360,
+        "wires": [
+            [
+                "{{_id}}-core-15"
+            ]
+        ]
+    },
+    {
+        "id": "{{_id}}-core-15",
+        "type": "function",
+        "z": "87c2d7eb.504c98",
+        "name": "",
+        "func": "msg.payload = 'Delete is currently not supported. Use PUT to update.'\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 730,
+        "y": 360,
+        "wires": [
+            [
+                "{{_id}}-44"
+            ]
+        ]
+    },
+    {
+        "id": "{{_id}}-core-16",
+        "type": "http in",
+        "z": "87c2d7eb.504c98",
+        "name": "",
+        "url": "/{{_url}}/config",
+        "method": "patch",
+        "upload": false,
+        "swaggerDoc": "",
+        "x": 220,
+        "y": 400,
+        "wires": [
+            [
+                "{{_id}}-core-17"
+            ]
+        ]
+    },
+    {
+        "id": "{{_id}}-core-17",
+        "type": "function",
+        "z": "87c2d7eb.504c98",
+        "name": "",
+        "func": "msg.payload = 'Patch is currently not supported. Use PUT to update.'\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 730,
+        "y": 400,
+        "wires": [
+            [
+                "{{_id}}-44"
+            ]
+        ]
+    },
+    {
+        "id": "{{_id}}-core-18",
+        "type": "http request",
+        "z": "87c2d7eb.504c98",
+        "name": "",
+        "method": "use",
+        "ret": "txt",
+        "url": "",
+        "tls": "",
+        "x": 590,
+        "y": 320,
+        "wires": [
+            [
+                "{{_id}}-core-19"
+            ]
+        ]
+    },
+    {
+        "id": "{{_id}}-core-19",
+        "type": "function",
+        "z": "87c2d7eb.504c98",
+        "name": "",
+        "func": "if (msg.statusCode != 200) {\n    msg.payload = 'Local Flow Configuration Updated, but not persisted.',\n    msg.statusCode = 500\n}\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 730,
+        "y": 320,
+        "wires": [
+            [
+                "{{_id}}-44"
+            ]
+        ]
+    },
+    {
+        "id": "{{_id}}-core-20",
+        "type": "comment",
+        "z": "87c2d7eb.504c98",
+        "name": "Data Endpoints",
+        "info": "",
+        "x": 200,
+        "y": 460,
+        "wires": []
+    },
+    {
+        "id": "{{_id}}-core-21",
+        "type": "http in",
+        "z": "87c2d7eb.504c98",
+        "name": "",
+        "url": "/{{_url}}/data",
+        "method": "get",
+        "upload": false,
+        "swaggerDoc": "",
+        "x": 230,
+        "y": 500,
+        "wires": [
+            [
+                "{{_id}}-core-22"
+            ]
+        ]
+    },
+    {
+        "id": "{{_id}}-core-22",
+        "type": "function",
+        "z": "87c2d7eb.504c98",
+        "name": "",
+        "func": "msg.url = global.get('node-red').url + '/elasticsearch',\nmsg.method = 'POST',\nmsg.payload = {\n    path: '/{{_index}}/_search',\n    method: 'GET'\n}\n\nif (msg.req._parsedUrl.search) {\n    msg.payload.path += msg.req._parsedUrl.search\n}\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 430,
+        "y": 500,
+        "wires": [
+            [
+                "{{_id}}-core-24"
+            ]
+        ]
+    },
+    {
+        "id": "{{_id}}-core-23",
+        "type": "http in",
+        "z": "87c2d7eb.504c98",
+        "name": "",
+        "url": "/{{_url}}/data/:id",
+        "method": "delete",
+        "upload": false,
+        "swaggerDoc": "",
+        "x": 210,
+        "y": 620,
+        "wires": [
+            [
+                "{{_id}}-core-37"
+            ]
+        ]
+    },
+    {
+        "id": "{{_id}}-core-24",
+        "type": "http request",
+        "z": "87c2d7eb.504c98",
+        "name": "",
+        "method": "use",
+        "ret": "obj",
+        "url": "",
+        "tls": "",
+        "x": 590,
+        "y": 500,
+        "wires": [
+            [
+                "{{_id}}-core-25"
+            ]
+        ]
+    },
+    {
+        "id": "{{_id}}-core-25",
+        "type": "function",
+        "z": "87c2d7eb.504c98",
+        "name": "",
+        "func": "var data = [];\n\nif (msg.payload.hits && msg.payload.hits.hits) {\n    data = msg.payload.hits.hits;    \n}\n\nmsg.payload = data\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 730,
+        "y": 500,
+        "wires": [
+            [
+                "{{_id}}-43"
+            ]
+        ]
+    },
+    {
+        "id": "{{_id}}-core-27",
+        "type": "http in",
+        "z": "87c2d7eb.504c98",
+        "name": "",
+        "url": "/{{_url}}/data/:id",
+        "method": "get",
+        "upload": false,
+        "swaggerDoc": "",
+        "x": 220,
+        "y": 540,
+        "wires": [
+            [
+                "{{_id}}-core-28"
+            ]
+        ]
+    },
+    {
+        "id": "{{_id}}-core-28",
+        "type": "function",
+        "z": "87c2d7eb.504c98",
+        "name": "",
+        "func": "msg.url = global.get('node-red').url + '/elasticsearch',\nmsg.method = 'POST',\nmsg.payload = {\n    path: '/{{_index}}/default/' + msg.req.params.id,\n    method: 'GET'\n}\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 430,
+        "y": 540,
+        "wires": [
+            [
+                "{{_id}}-core-29"
+            ]
+        ]
+    },
+    {
+        "id": "{{_id}}-core-29",
+        "type": "http request",
+        "z": "87c2d7eb.504c98",
+        "name": "",
+        "method": "use",
+        "ret": "obj",
+        "url": "",
+        "tls": "",
+        "x": 590,
+        "y": 540,
+        "wires": [
+            [
+                "{{_id}}-core-30"
+            ]
+        ]
+    },
+    {
+        "id": "{{_id}}-core-30",
+        "type": "function",
+        "z": "87c2d7eb.504c98",
+        "name": "",
+        "func": "if (msg.payload.found === true && msg.payload._source) {\n    var data = msg.payload._source;\n}\n\nmsg.payload = data\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 730,
+        "y": 540,
+        "wires": [
+            [
+                "{{_id}}-43"
+            ]
+        ]
+    },
+    {
+        "id": "{{_id}}-core-31",
+        "type": "http request",
+        "z": "87c2d7eb.504c98",
+        "name": "",
+        "method": "use",
+        "ret": "obj",
+        "url": "",
+        "tls": "",
+        "x": 590,
+        "y": 660,
+        "wires": [
+            [
+                "{{_id}}-43"
+            ]
+        ]
+    },
+    {
+        "id": "{{_id}}-core-32",
+        "type": "httpInMultipart",
+        "z": "87c2d7eb.504c98",
+        "name": "",
+        "url": "/{{_url}}/data",
+        "method": "post",
+        "fields": "[{\"name\": \"file\"}]",
+        "swaggerDoc": "",
+        "x": 230,
+        "y": 660,
+        "wires": [
+            [
+                "{{_id}}-core-33"
+            ]
+        ]
+    },
+    {
+        "id": "{{_id}}-core-33",
+        "type": "function",
+        "z": "87c2d7eb.504c98",
+        "name": "",
+        "func": "if (msg.req.files && msg.req.files.file) {\n    msg.payload = 'Attempting to parse file, see Node-RED logs for status.'\n    \n    return [null, msg]\n} else {\n    var body = msg.payload;\n\n    msg.url = global.get('node-red').url + '/elasticsearch',\n    msg.method = 'POST',\n    msg.payload = {\n        path: '/{{_index}}/default/',\n        method: 'PUT'\n    }\n    \n    if (msg.payload instanceof Array) {\n        var messages = [];\n        \n        msg.payload.forEach(function(data) {\n            msg.payload.payload = data;\n            \n            messages.push(msg)\n        })\n        \n        return [messages, null];\n    } else {\n        msg.payload.payload = body\n        \n        return [msg, null];\n    }\n}",
+        "outputs": "2",
+        "noerr": 0,
+        "x": 430,
+        "y": 660,
+        "wires": [
+            [
+                "{{_id}}-core-31"
+            ],
+            [
+                "{{_id}}-45",
+                "{{_id}}-20"
+            ]
+        ]
+    },
+    {
+        "id": "{{_id}}-core-34",
+        "type": "http in",
+        "z": "87c2d7eb.504c98",
+        "name": "",
+        "url": "/{{_url}}/data/:id",
+        "method": "put",
+        "upload": false,
+        "swaggerDoc": "",
+        "x": 220,
+        "y": 580,
+        "wires": [
+            [
+                "{{_id}}-core-35"
+            ]
+        ]
+    },
+    {
+        "id": "{{_id}}-core-35",
+        "type": "function",
+        "z": "87c2d7eb.504c98",
+        "name": "",
+        "func": "var body = msg.payload;\n\nmsg.url = global.get('node-red').url + '/elasticsearch',\nmsg.method = 'POST',\nmsg.payload = {\n    path: '/{{_index}}/default/' + msg.req.params.id,\n    method: 'PUT',\n    payload: body\n}\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 430,
+        "y": 580,
+        "wires": [
+            [
+                "{{_id}}-core-36"
+            ]
+        ]
+    },
+    {
+        "id": "{{_id}}-core-36",
+        "type": "http request",
+        "z": "87c2d7eb.504c98",
+        "name": "",
+        "method": "use",
+        "ret": "txt",
+        "url": "",
+        "tls": "",
+        "x": 590,
+        "y": 580,
+        "wires": [
+            [
+                "{{_id}}-43"
+            ]
+        ]
+    },
+    {
+        "id": "{{_id}}-core-37",
+        "type": "function",
+        "z": "87c2d7eb.504c98",
+        "name": "",
+        "func": "msg.url = global.get('node-red').url + '/elasticsearch',\nmsg.method = 'POST',\nmsg.payload = {\n    path: '/{{_index}}/default/' + msg.req.params.id,\n    method: 'DELETE'\n}\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 430,
+        "y": 620,
+        "wires": [
+            [
+                "{{_id}}-core-38"
+            ]
+        ]
+    },
+    {
+        "id": "{{_id}}-core-38",
+        "type": "http request",
+        "z": "87c2d7eb.504c98",
+        "name": "",
+        "method": "use",
+        "ret": "txt",
+        "url": "",
+        "tls": "",
+        "x": 590,
+        "y": 620,
+        "wires": [
+            [
+                "{{_id}}-43"
+            ]
+        ]
+    },
+    {
+        "id": "{{_id}}-core-39",
+        "type": "switch",
+        "z": "87c2d7eb.504c98",
+        "name": "",
+        "property": "statusCode",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "vt": "num",
+                "t": "eq",
+                "v": "200"
+            },
+            {
+                "t": "else"
+            }
+        ],
+        "checkall": "true",
+        "outputs": 2,
+        "x": 650,
+        "y": 140,
+        "wires": [
+            [
+                "{{_id}}-core-5"
+            ],
+            [
+                "{{_id}}-core-40"
+            ]
+        ]
+    },
+    {
+        "id": "{{_id}}-core-40",
+        "type": "delay",
+        "z": "87c2d7eb.504c98",
+        "name": "",
+        "pauseType": "delay",
+        "timeout": "5",
+        "timeoutUnits": "seconds",
+        "rate": "1",
+        "nbRateUnits": "1",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "x": 520,
+        "y": 180,
+        "wires": [
+            [
+                "{{_id}}-core-3"
+            ]
+        ]
+    },
+    {
+        "id": "{{_id}}-2",
+        "type": "split",
+        "z": "87c2d7eb.504c98",
+        "name": "",
+        "splt": "\\n",
+        "spltType": "str",
+        "arraySplt": "1",
+        "arraySpltType": "len",
+        "stream": false,
+        "addname": "",
+        "x": 370,
+        "y": 940,
+        "wires": [
+            [
+                "{{_id}}-47"
+            ]
+        ]
+    },
+    {
+        "id": "{{_id}}-4",
+        "type": "link in",
+        "z": "87c2d7eb.504c98",
+        "name": "HTTP Response",
+        "links": [
+            "{{_id}}-35",
+            "{{_id}}-39",
+            "{{_id}}-40",
+            "{{_id}}-42",
+            "{{_id}}-43",
+            "{{_id}}-44",
+            "11194e58.7f22d2",
+            "{{_id}}-45"
+        ],
+        "x": 915,
+        "y": 180,
+        "wires": [
+            [
+                "{{_id}}-core-9",
+                "{{_id}}-41"
+            ]
+        ]
+    },
+    {
+        "id": "{{_id}}-5",
+        "type": "comment",
+        "z": "87c2d7eb.504c98",
+        "name": "Try to parse file",
+        "info": "",
+        "x": 220,
+        "y": 900,
+        "wires": []
+    },
+    {
+        "id": "{{_id}}-6",
+        "type": "link in",
+        "z": "87c2d7eb.504c98",
+        "name": "File In",
+        "links": [
+            "{{_id}}-20"
+        ],
+        "x": 155,
+        "y": 800,
+        "wires": [
+            [
+                "{{_id}}-48"
+            ]
+        ]
+    },
+    {
+        "id": "{{_id}}-10",
+        "type": "function",
+        "z": "87c2d7eb.504c98",
+        "name": "",
+        "func": "if (msg.payload) {\n    var operation = {\n        \"_index\": \"{{_index}}\",\n        \"_type\": \"default\"\n    }\n    \n    var data = msg.payload\n        \n    var uniqueField = flow.get('uniqueField');\n    var forceStrings = flow.get('forceStrings');\n    \n    \n    for (var k in data) {\n        if (forceStrings) {\n            data[k] = String(data[k])\n        }\n        \n        newK = k.replace(/\\./g,'_')\n        \n        if (newK != k) {\n            data[newK] = data[k]\n            delete data[k]\n        }\n    }\n    \n    if (uniqueField && uniqueField !== '' && msg.payload[uniqueField]) {\n        operation['_id'] = msg.payload[uniqueField]\n    }\n    \n    var newMsg1 = {};\n    newMsg1.payload = JSON.stringify({index: operation})\n    msg.payload = JSON.stringify(data)\n    \n    if (msg.parts.index == (msg.parts.count - 1)) {\n        msg.complete = true\n    }\n    \n    return [[newMsg1,msg]];\n}",
+        "outputs": "1",
+        "noerr": 0,
+        "x": 250,
+        "y": 1040,
+        "wires": [
+            [
+                "{{_id}}-11"
+            ]
+        ]
+    },
+    {
+        "id": "{{_id}}-11",
+        "type": "join",
+        "z": "87c2d7eb.504c98",
+        "name": "",
+        "mode": "custom",
+        "build": "string",
+        "property": "payload",
+        "propertyType": "msg",
+        "key": "topic",
+        "joiner": "\\n",
+        "joinerType": "str",
+        "accumulate": false,
+        "timeout": "",
+        "count": "10000",
+        "x": 370,
+        "y": 1040,
+        "wires": [
+            [
+                "{{_id}}-12"
+            ]
+        ]
+    },
+    {
+        "id": "{{_id}}-12",
+        "type": "function",
+        "z": "87c2d7eb.504c98",
+        "name": "",
+        "func": "msg.payload += \"\\n\"\n\nvar insertData = msg.payload;\n\nmsg.url = global.get('node-red').url + '/elasticsearch';\nmsg.method = 'POST'\n\nmsg.payload = {\n    path: '/_bulk',\n    method: 'POST',\n    payload: insertData\n}\n\n\ndelete msg.headers\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 490,
+        "y": 1040,
+        "wires": [
+            [
+                "{{_id}}-13"
+            ]
+        ]
+    },
+    {
+        "id": "{{_id}}-13",
+        "type": "http request",
+        "z": "87c2d7eb.504c98",
+        "name": "",
+        "method": "use",
+        "ret": "obj",
+        "url": "",
+        "tls": "",
+        "x": 630,
+        "y": 1040,
+        "wires": [
+            [
+                "{{_id}}-50"
+            ]
+        ]
+    },
+    {
+        "id": "{{_id}}-14",
+        "type": "comment",
+        "z": "87c2d7eb.504c98",
+        "name": "Truncate Existing Data",
+        "info": "",
+        "x": 240,
+        "y": 760,
+        "wires": []
+    },
+    {
+        "id": "{{_id}}-15",
+        "type": "function",
+        "z": "87c2d7eb.504c98",
+        "name": "",
+        "func": "msg.url = global.get('node-red').url + '/elasticsearch';\nmsg.method = 'POST';\n\nmsg.payload = {\n    path: '/{{_index}}',\n    method: 'HEAD'\n}\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 530,
+        "y": 800,
+        "wires": [
+            [
+                "{{_id}}-16"
+            ]
+        ]
+    },
+    {
+        "id": "{{_id}}-16",
+        "type": "http request",
+        "z": "87c2d7eb.504c98",
+        "name": "",
+        "method": "use",
+        "ret": "txt",
+        "url": "",
+        "tls": "",
+        "x": 670,
+        "y": 800,
+        "wires": [
+            [
+                "{{_id}}-17"
+            ]
+        ]
+    },
+    {
+        "id": "{{_id}}-17",
+        "type": "function",
+        "z": "87c2d7eb.504c98",
+        "name": "",
+        "func": "delete msg.method;\ndelete msg.headers;\ndelete msg.req;\n\nif (msg.statusCode == 200) {\n    msg.url = global.get('node-red').url + '/elasticsearch'\n    msg.method = 'POST'\n    \n    msg.payload = {\n        path: '/{{_index}}/_delete_by_query',\n        method: 'POST',\n        payload: {\n            \"query\": {\n                \"match_all\": {}\n            }\n        }\n    }\n    \n    return [msg, null];\n} else {\n    // Likely index doesn't exist so we just continue like it's gone.\n    msg.statusCode = 200;\n    \n    return [null, msg]    \n}",
+        "outputs": "2",
+        "noerr": 0,
+        "x": 810,
+        "y": 800,
+        "wires": [
+            [
+                "{{_id}}-18"
+            ],
+            [
+                "{{_id}}-37"
+            ]
+        ]
+    },
+    {
+        "id": "{{_id}}-18",
+        "type": "http request",
+        "z": "87c2d7eb.504c98",
+        "name": "",
+        "method": "use",
+        "ret": "obj",
+        "url": "",
+        "tls": "",
+        "x": 970,
+        "y": 800,
+        "wires": [
+            [
+                "{{_id}}-30"
+            ]
+        ]
+    },
+    {
+        "id": "{{_id}}-19",
+        "type": "switch",
+        "z": "87c2d7eb.504c98",
+        "name": "",
+        "property": "truncate",
+        "propertyType": "flow",
+        "rules": [
+            {
+                "vt": "str",
+                "t": "eq",
+                "v": "true"
+            },
+            {
+                "t": "else"
+            }
+        ],
+        "checkall": "false",
+        "outputs": 2,
+        "x": 390,
+        "y": 800,
+        "wires": [
+            [
+                "{{_id}}-15"
+            ],
+            [
+                "{{_id}}-36"
+            ]
+        ]
+    },
+    {
+        "id": "{{_id}}-20",
+        "type": "link out",
+        "z": "87c2d7eb.504c98",
+        "name": "File Out",
+        "links": [
+            "{{_id}}-6"
+        ],
+        "x": 535,
+        "y": 740,
+        "wires": []
+    },
+    {
+        "id": "{{_id}}-30",
+        "type": "link out",
+        "z": "87c2d7eb.504c98",
+        "name": "Switch out",
+        "links": [
+            "{{_id}}-31"
+        ],
+        "x": 1075,
+        "y": 800,
+        "wires": []
+    },
+    {
+        "id": "{{_id}}-31",
+        "type": "link in",
+        "z": "87c2d7eb.504c98",
+        "name": "Switch In",
+        "links": [
+            "{{_id}}-30",
+            "{{_id}}-37",
+            "{{_id}}-36"
+        ],
+        "x": 155,
+        "y": 940,
+        "wires": [
+            [
+                "{{_id}}-49"
+            ]
+        ]
+    },
+    {
+        "id": "{{_id}}-32",
+        "type": "link in",
+        "z": "87c2d7eb.504c98",
+        "name": "Load Data",
+        "links": [
+            "{{_id}}-33"
+        ],
+        "x": 155,
+        "y": 1040,
+        "wires": [
+            [
+                "{{_id}}-10"
+            ]
+        ]
+    },
+    {
+        "id": "{{_id}}-33",
+        "type": "link out",
+        "z": "87c2d7eb.504c98",
+        "name": "Truncated",
+        "links": [
+            "{{_id}}-32"
+        ],
+        "x": 1115,
+        "y": 940,
+        "wires": []
+    },
+    {
+        "id": "{{_id}}-34",
+        "type": "comment",
+        "z": "87c2d7eb.504c98",
+        "name": "Primary Flow",
+        "info": "",
+        "x": 190,
+        "y": 720,
+        "wires": []
+    },
+    {
+        "id": "{{_id}}-36",
+        "type": "link out",
+        "z": "87c2d7eb.504c98",
+        "name": "Do Not Truncate",
+        "links": [
+            "{{_id}}-31"
+        ],
+        "x": 495,
+        "y": 840,
+        "wires": []
+    },
+    {
+        "id": "{{_id}}-37",
+        "type": "link out",
+        "z": "87c2d7eb.504c98",
+        "name": "Index Does Not Exist",
+        "links": [
+            "{{_id}}-31"
+        ],
+        "x": 915,
+        "y": 840,
+        "wires": []
+    },
+    {
+        "id": "{{_id}}-38",
+        "type": "comment",
+        "z": "87c2d7eb.504c98",
+        "name": "Format Data",
+        "info": "",
+        "x": 210,
+        "y": 1000,
+        "wires": []
+    },
+    {
+        "id": "{{_id}}-41",
+        "type": "debug",
+        "z": "87c2d7eb.504c98",
+        "name": "",
+        "active": true,
+        "console": "false",
+        "complete": "true",
+        "x": 1010,
+        "y": 140,
+        "wires": []
+    },
+    {
+        "id": "{{_id}}-43",
+        "type": "link out",
+        "z": "87c2d7eb.504c98",
+        "name": "Data Operation Output",
+        "links": [
+            "{{_id}}-4"
+        ],
+        "x": 895,
+        "y": 580,
+        "wires": []
+    },
+    {
+        "id": "{{_id}}-44",
+        "type": "link out",
+        "z": "87c2d7eb.504c98",
+        "name": "Data Operation Output",
+        "links": [
+            "{{_id}}-4"
+        ],
+        "x": 895,
+        "y": 320,
+        "wires": []
+    },
+    {
+        "id": "{{_id}}-45",
+        "type": "link out",
+        "z": "87c2d7eb.504c98",
+        "name": "Data Operation Output",
+        "links": [
+            "{{_id}}-4"
+        ],
+        "x": 535,
+        "y": 700,
+        "wires": []
+    },
+    {
+        "id": "{{_id}}-47",
+        "type": "function",
+        "z": "87c2d7eb.504c98",
+        "name": "Configure",
+        "func": "var newMsg = {}\n\nnewMsg.filename = msg.payload.path\nreturn newMsg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 520,
+        "y": 940,
+        "wires": [
+            [
+                "{{_id}}-51"
+            ]
+        ]
+    },
+    {
+        "id": "{{_id}}-48",
+        "type": "function",
+        "z": "87c2d7eb.504c98",
+        "name": "",
+        "func": "if (msg.req.files && msg.req.files.file) {\n    msg.files = msg.req.files.file\n    return msg\n} else {\n    node.error('No file found in payload.');\n}",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 250,
+        "y": 800,
+        "wires": [
+            [
+                "{{_id}}-19"
+            ]
+        ]
+    },
+    {
+        "id": "{{_id}}-49",
+        "type": "function",
+        "z": "87c2d7eb.504c98",
+        "name": "",
+        "func": "msg.payload = msg.files\nreturn msg",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 250,
+        "y": 940,
+        "wires": [
+            [
+                "{{_id}}-2"
+            ]
+        ]
+    },
+    {
+        "id": "{{_id}}-50",
+        "type": "debug",
+        "z": "87c2d7eb.504c98",
+        "name": "",
+        "active": true,
+        "console": "false",
+        "complete": "false",
+        "x": 790,
+        "y": 1040,
+        "wires": []
+    },
+    {
+        "id": "{{_id}}-51",
+        "type": "file in",
+        "z": "87c2d7eb.504c98",
+        "name": "",
+        "filename": "",
+        "format": "utf8",
+        "chunk": false,
+        "sendError": false,
+        "x": 650,
+        "y": 940,
+        "wires": [
+            [
+                "{{_id}}-52"
+            ]
+        ]
+    },
+    {
+        "id": "{{_id}}-52",
+        "type": "json",
+        "z": "87c2d7eb.504c98",
+        "name": "",
+        "pretty": false,
+        "x": 774.5,
+        "y": 939,
+        "wires": [
+            [
+                "{{_id}}-54"
+            ]
+        ]
+    },
+    {
+        "id": "{{_id}}-53",
+        "type": "split",
+        "z": "87c2d7eb.504c98",
+        "name": "",
+        "splt": "\\n",
+        "spltType": "str",
+        "arraySplt": 1,
+        "arraySpltType": "len",
+        "stream": false,
+        "addname": "",
+        "x": 1030,
+        "y": 940,
+        "wires": [
+            [
+                "{{_id}}-33"
+            ]
+        ]
+    },
+    {
+        "id": "{{_id}}-54",
+        "type": "function",
+        "z": "87c2d7eb.504c98",
+        "name": "",
+        "func": "var dataPath = flow.get('dataPath');\n\nif (dataPath && dataPath != '.') {\n    msg.payload = msg.payload[dataPath]\n}\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 910,
+        "y": 940,
+        "wires": [
+            [
+                "{{_id}}-53"
             ]
         ]
     }

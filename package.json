@@ -2,7 +2,9 @@
     "name": "siren-elastic",
     "description": "siren elastic flow",
     "version": "0.0.1",
-    "dependencies": {},
+    "dependencies": {
+        "node-red-contrib-http-multipart": "0.3.2"
+    },
     "node-red": {
         "settings": {
             "flowFile": "flow.json",
