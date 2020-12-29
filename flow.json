@@ -9,7 +9,21 @@
     {
         "id": "f905f306.abcfc8",
         "type": "tab",
-        "label": "Flow 1",
+        "label": "Historical Price Flow",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "36422d0f.464e4a",
+        "type": "tab",
+        "label": "Stock News",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "968af95b.b89a4",
+        "type": "tab",
+        "label": "Earning Surprises",
         "disabled": false,
         "info": ""
     },
@@ -1141,13 +1155,13 @@
         "type": "function",
         "z": "f905f306.abcfc8",
         "name": "",
-        "func": "if (msg.payload) {\n    var operation = {\n        \"_index\": \"demo-historical-price\",\n        \"_type\": \"doc\"\n    }\n    \n    var data = msg.payload\n        \n    var uniqueField = flow.get('uniqueField');\n    var forceStrings = flow.get('forceStrings');\n    \n    \n    for (var k in data) {\n        if (forceStrings) {\n            data[k] = String(data[k])\n        }\n        \n        newK = k.replace(/\\./g,'_')\n        \n        if (newK != k) {\n            data[newK] = data[k]\n            delete data[k]\n        }\n    }\n    \n    if (uniqueField && uniqueField !== '' && msg.payload[uniqueField]) {\n        operation['_id'] = msg.payload[uniqueField]\n    }\n    \n    var newMsg1 = {};\n    newMsg1.payload = JSON.stringify({index: operation})\n    msg.payload = JSON.stringify(data)\n    \n    if (msg.parts.index == (msg.parts.count - 1)) {\n        msg.complete = true\n    }\n    //msg.complete = true;\n    \n    return [[newMsg1,msg]];\n}",
+        "func": "if (msg.payload) {\n    var operation = {\n        \"_index\": \"stock-historical-\" + msg.symbol.toLowerCase(),\n        \"_type\": \"doc\"\n    }\n    \n    var data = msg.payload\n        \n    var uniqueField = flow.get('uniqueField');\n    var forceStrings = flow.get('forceStrings');\n    \n    \n    for (var k in data) {\n        if (forceStrings) {\n            data[k] = String(data[k])\n        }\n        \n        newK = k.replace(/\\./g,'_')\n        \n        if (newK != k) {\n            data[newK] = data[k]\n            delete data[k]\n        }\n    }\n    \n    if (uniqueField && uniqueField !== '' && msg.payload[uniqueField]) {\n        operation['_id'] = msg.payload[uniqueField]\n    }\n    \n    var newMsg1 = {};\n    newMsg1.payload = JSON.stringify({index: operation})\n    msg.payload = JSON.stringify(data)\n    \n    if (msg.parts.index == (msg.parts.count - 1)) {\n        msg.complete = true\n    }\n    //msg.complete = true;\n    \n    return [[newMsg1,msg]];\n}",
         "outputs": "1",
         "noerr": 0,
         "initialize": "",
         "finalize": "",
-        "x": 260,
-        "y": 980,
+        "x": 300,
+        "y": 1060,
         "wires": [
             [
                 "{{_id}}-11"
@@ -1174,8 +1188,8 @@
         "reduceInit": "",
         "reduceInitType": "",
         "reduceFixup": "",
-        "x": 410,
-        "y": 980,
+        "x": 450,
+        "y": 1060,
         "wires": [
             [
                 "{{_id}}-12"
@@ -1192,8 +1206,8 @@
         "noerr": 0,
         "initialize": "",
         "finalize": "",
-        "x": 640,
-        "y": 980,
+        "x": 680,
+        "y": 1060,
         "wires": [
             [
                 "{{_id}}-13",
@@ -1215,7 +1229,7 @@
         "proxy": "",
         "authType": "",
         "x": 850,
-        "y": 980,
+        "y": 1060,
         "wires": [
             [
                 "{{_id}}-50"
@@ -1382,8 +1396,8 @@
         "links": [
             "{{_id}}-33"
         ],
-        "x": 95,
-        "y": 980,
+        "x": 135,
+        "y": 1060,
         "wires": [
             [
                 "{{_id}}-10"
@@ -1396,7 +1410,8 @@
         "z": "f905f306.abcfc8",
         "name": "Truncated",
         "links": [
-            "{{_id}}-32"
+            "{{_id}}-32",
+            "26f12a47.ace9be"
         ],
         "x": 1055,
         "y": 880,
@@ -1442,8 +1457,8 @@
         "z": "f905f306.abcfc8",
         "name": "Format Data",
         "info": "",
-        "x": 150,
-        "y": 940,
+        "x": 190,
+        "y": 1020,
         "wires": []
     },
     {
@@ -1550,8 +1565,8 @@
         "active": true,
         "console": "false",
         "complete": "false",
-        "x": 1010,
-        "y": 980,
+        "x": 1050,
+        "y": 1060,
         "wires": []
     },
     {
@@ -1626,17 +1641,19 @@
         "z": "f905f306.abcfc8",
         "name": "",
         "method": "GET",
-        "ret": "obj",
+        "ret": "txt",
         "paytoqs": "ignore",
         "url": "https://financialmodelingprep.com/api/v3/historical-price-full/AAPL?apikey=demo",
         "tls": "",
         "persist": false,
         "proxy": "",
         "authType": "",
-        "x": 330,
-        "y": 1200,
+        "x": 350,
+        "y": 1260,
         "wires": [
-            []
+            [
+                "bd0be12a.81466"
+            ]
         ]
     },
     {
@@ -1652,8 +1669,8 @@
         "targetType": "full",
         "statusVal": "",
         "statusType": "auto",
-        "x": 930,
-        "y": 1260,
+        "x": 970,
+        "y": 1340,
         "wires": []
     },
     {
@@ -1677,11 +1694,11 @@
         "topic": "",
         "payload": "",
         "payloadType": "date",
-        "x": 140,
-        "y": 1260,
+        "x": 180,
+        "y": 1340,
         "wires": [
             [
-                "4be86d96.98cf84"
+                "d8d9c719.f7dcd8"
             ]
         ]
     },
@@ -1711,11 +1728,12 @@
         "from": "",
         "to": "",
         "reg": false,
-        "x": 660,
-        "y": 1260,
+        "x": 720,
+        "y": 1340,
         "wires": [
             [
-                "45e95a9a.b682c4"
+                "45e95a9a.b682c4",
+                "636fa3cd.7d0e24"
             ]
         ]
     },
@@ -1727,8 +1745,8 @@
         "property": "payload",
         "action": "",
         "pretty": true,
-        "x": 510,
-        "y": 1260,
+        "x": 550,
+        "y": 1340,
         "wires": [
             [
                 "ebd64371.f94fe8"
@@ -1745,8 +1763,8 @@
         "createDir": false,
         "overwriteFile": "true",
         "encoding": "none",
-        "x": 960,
-        "y": 1060,
+        "x": 1000,
+        "y": 1140,
         "wires": [
             []
         ]
@@ -1761,12 +1779,10 @@
         "chunk": false,
         "sendError": false,
         "encoding": "none",
-        "x": 340,
-        "y": 1260,
+        "x": 360,
+        "y": 1340,
         "wires": [
-            [
-                "bd0be12a.81466"
-            ]
+            []
         ]
     },
     {
@@ -1780,11 +1796,523 @@
         "arraySpltType": "len",
         "stream": false,
         "addname": "",
-        "x": 650,
-        "y": 1200,
+        "x": 670,
+        "y": 1180,
         "wires": [
             [
                 "{{_id}}-10"
+            ]
+        ]
+    },
+    {
+        "id": "cc418c87.7d716",
+        "type": "function",
+        "z": "36422d0f.464e4a",
+        "name": "",
+        "func": "if (msg.payload) {\n    var operation = {\n        \"_index\": \"stock-news-\" + msg.symbol.toLowerCase(),\n        \"_type\": \"doc\"\n    }\n    \n    var data = msg.payload\n        \n    var uniqueField = flow.get('uniqueField');\n    var forceStrings = flow.get('forceStrings');\n    \n    \n    for (var k in data) {\n        if (forceStrings) {\n            data[k] = String(data[k])\n        }\n        \n        newK = k.replace(/\\./g,'_')\n        \n        if (newK != k) {\n            data[newK] = data[k]\n            delete data[k]\n        }\n    }\n    \n    if (uniqueField && uniqueField !== '' && msg.payload[uniqueField]) {\n        operation['_id'] = msg.payload[uniqueField]\n    }\n    \n    var newMsg1 = {};\n    newMsg1.payload = JSON.stringify({index: operation})\n    msg.payload = JSON.stringify(data)\n    \n    if (msg.parts.index == (msg.parts.count - 1)) {\n        msg.complete = true\n    }\n    //msg.complete = true;\n    \n    return [[newMsg1,msg]];\n}",
+        "outputs": "1",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "x": 300,
+        "y": 180,
+        "wires": [
+            [
+                "fe37b616.c541e"
+            ]
+        ]
+    },
+    {
+        "id": "fe37b616.c541e",
+        "type": "join",
+        "z": "36422d0f.464e4a",
+        "name": "",
+        "mode": "custom",
+        "build": "string",
+        "property": "payload",
+        "propertyType": "msg",
+        "key": "topic",
+        "joiner": "\\n",
+        "joinerType": "str",
+        "accumulate": false,
+        "timeout": "",
+        "count": "10000",
+        "reduceRight": false,
+        "reduceExp": "",
+        "reduceInit": "",
+        "reduceInitType": "",
+        "reduceFixup": "",
+        "x": 450,
+        "y": 180,
+        "wires": [
+            [
+                "bd23e875.ff743"
+            ]
+        ]
+    },
+    {
+        "id": "bd23e875.ff743",
+        "type": "function",
+        "z": "36422d0f.464e4a",
+        "name": "",
+        "func": "msg.payload += \"\\n\"\n\nvar insertData = {}\ninsertData = msg.payload;\n\nmsg.url = global.get('node-red').url + '/elasticsearch';\nmsg.method = 'POST'\n\nmsg.payload = {\n    path: '/_bulk',\n    method: 'POST',\n    payload: insertData\n}\n\n\ndelete msg.headers\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "x": 680,
+        "y": 180,
+        "wires": [
+            [
+                "aa25d549.521088",
+                "7c8fa5f6.11ef84"
+            ]
+        ]
+    },
+    {
+        "id": "aa25d549.521088",
+        "type": "http request",
+        "z": "36422d0f.464e4a",
+        "name": "",
+        "method": "use",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "authType": "",
+        "x": 850,
+        "y": 180,
+        "wires": [
+            [
+                "24a98a14.06814e"
+            ]
+        ]
+    },
+    {
+        "id": "60fa9309.125ce4",
+        "type": "comment",
+        "z": "36422d0f.464e4a",
+        "name": "Format Data",
+        "info": "",
+        "x": 190,
+        "y": 140,
+        "wires": []
+    },
+    {
+        "id": "24a98a14.06814e",
+        "type": "debug",
+        "z": "36422d0f.464e4a",
+        "name": "",
+        "active": true,
+        "console": "false",
+        "complete": "false",
+        "x": 1050,
+        "y": 180,
+        "wires": []
+    },
+    {
+        "id": "3f11c5bc.af8852",
+        "type": "http request",
+        "z": "36422d0f.464e4a",
+        "name": "",
+        "method": "GET",
+        "ret": "txt",
+        "paytoqs": "ignore",
+        "url": "https://financialmodelingprep.com/api/v3/stock_news?tickers=AAPL&apikey= 0a2f88e94b42325d4d0979e44d641af7",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "authType": "",
+        "x": 350,
+        "y": 380,
+        "wires": [
+            [
+                "9dbc7fb7.76b448"
+            ]
+        ]
+    },
+    {
+        "id": "231edaad.5e5226",
+        "type": "debug",
+        "z": "36422d0f.464e4a",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 970,
+        "y": 460,
+        "wires": []
+    },
+    {
+        "id": "8bd4aee5.872ac8",
+        "type": "inject",
+        "z": "36422d0f.464e4a",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 180,
+        "y": 460,
+        "wires": [
+            [
+                "3f11c5bc.af8852"
+            ]
+        ]
+    },
+    {
+        "id": "b76969d3.fe3158",
+        "type": "change",
+        "z": "36422d0f.464e4a",
+        "name": "",
+        "rules": [
+            {
+                "t": "move",
+                "p": "payload.symbol",
+                "pt": "msg",
+                "to": "symbol",
+                "tot": "msg"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 760,
+        "y": 500,
+        "wires": [
+            [
+                "8f2b816f.3089b"
+            ]
+        ]
+    },
+    {
+        "id": "9dbc7fb7.76b448",
+        "type": "json",
+        "z": "36422d0f.464e4a",
+        "name": "",
+        "property": "payload",
+        "action": "",
+        "pretty": true,
+        "x": 550,
+        "y": 460,
+        "wires": [
+            [
+                "b76969d3.fe3158",
+                "231edaad.5e5226"
+            ]
+        ]
+    },
+    {
+        "id": "7c8fa5f6.11ef84",
+        "type": "file",
+        "z": "36422d0f.464e4a",
+        "name": "",
+        "filename": "/data/test.json",
+        "appendNewline": true,
+        "createDir": false,
+        "overwriteFile": "true",
+        "encoding": "none",
+        "x": 1000,
+        "y": 260,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "c1feb082.77a208",
+        "type": "file in",
+        "z": "36422d0f.464e4a",
+        "name": "",
+        "filename": "/data/data.json",
+        "format": "utf8",
+        "chunk": false,
+        "sendError": false,
+        "encoding": "none",
+        "x": 360,
+        "y": 460,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "8f2b816f.3089b",
+        "type": "split",
+        "z": "36422d0f.464e4a",
+        "name": "",
+        "splt": "\\n",
+        "spltType": "str",
+        "arraySplt": 1,
+        "arraySpltType": "len",
+        "stream": false,
+        "addname": "",
+        "x": 670,
+        "y": 300,
+        "wires": [
+            [
+                "cc418c87.7d716"
+            ]
+        ]
+    },
+    {
+        "id": "53c80cb5.9d1f94",
+        "type": "function",
+        "z": "968af95b.b89a4",
+        "name": "",
+        "func": "if (msg.payload) {\n    var operation = {\n        \"_index\": \"stock-earnings-surprise-\" + msg.payload.symbol.toLowerCase(),\n        \"_type\": \"doc\"\n    }\n    \n    var data = msg.payload\n        \n    var uniqueField = flow.get('uniqueField');\n    var forceStrings = flow.get('forceStrings');\n    \n    \n    for (var k in data) {\n        if (forceStrings) {\n            data[k] = String(data[k])\n        }\n        \n        newK = k.replace(/\\./g,'_')\n        \n        if (newK != k) {\n            data[newK] = data[k]\n            delete data[k]\n        }\n    }\n    \n    if (uniqueField && uniqueField !== '' && msg.payload[uniqueField]) {\n        operation['_id'] = msg.payload[uniqueField]\n    }\n    \n    var newMsg1 = {};\n    newMsg1.payload = JSON.stringify({index: operation})\n    msg.payload = JSON.stringify(data)\n    \n    if (msg.parts.index == (msg.parts.count - 1)) {\n        msg.complete = true\n    }\n    //msg.complete = true;\n    \n    return [[newMsg1,msg]];\n}",
+        "outputs": "1",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "x": 320,
+        "y": 200,
+        "wires": [
+            [
+                "96d020c4.a03cb"
+            ]
+        ]
+    },
+    {
+        "id": "96d020c4.a03cb",
+        "type": "join",
+        "z": "968af95b.b89a4",
+        "name": "",
+        "mode": "custom",
+        "build": "string",
+        "property": "payload",
+        "propertyType": "msg",
+        "key": "topic",
+        "joiner": "\\n",
+        "joinerType": "str",
+        "accumulate": false,
+        "timeout": "",
+        "count": "10000",
+        "reduceRight": false,
+        "reduceExp": "",
+        "reduceInit": "",
+        "reduceInitType": "",
+        "reduceFixup": "",
+        "x": 470,
+        "y": 200,
+        "wires": [
+            [
+                "bdbac27c.d47d68"
+            ]
+        ]
+    },
+    {
+        "id": "bdbac27c.d47d68",
+        "type": "function",
+        "z": "968af95b.b89a4",
+        "name": "",
+        "func": "msg.payload += \"\\n\"\n\nvar insertData = {}\ninsertData = msg.payload;\n\nmsg.url = global.get('node-red').url + '/elasticsearch';\nmsg.method = 'POST'\n\nmsg.payload = {\n    path: '/_bulk',\n    method: 'POST',\n    payload: insertData\n}\n\n\ndelete msg.headers\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "x": 700,
+        "y": 200,
+        "wires": [
+            [
+                "33886840.b4bbd8",
+                "b03aa389.3603b8"
+            ]
+        ]
+    },
+    {
+        "id": "33886840.b4bbd8",
+        "type": "http request",
+        "z": "968af95b.b89a4",
+        "name": "",
+        "method": "use",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "authType": "",
+        "x": 870,
+        "y": 200,
+        "wires": [
+            [
+                "e53abc5d.eaedc"
+            ]
+        ]
+    },
+    {
+        "id": "b75014f9.ac0a28",
+        "type": "comment",
+        "z": "968af95b.b89a4",
+        "name": "Format Data",
+        "info": "",
+        "x": 210,
+        "y": 160,
+        "wires": []
+    },
+    {
+        "id": "e53abc5d.eaedc",
+        "type": "debug",
+        "z": "968af95b.b89a4",
+        "name": "",
+        "active": true,
+        "console": "false",
+        "complete": "false",
+        "x": 1070,
+        "y": 200,
+        "wires": []
+    },
+    {
+        "id": "99064ee6.7203c8",
+        "type": "http request",
+        "z": "968af95b.b89a4",
+        "name": "",
+        "method": "GET",
+        "ret": "txt",
+        "paytoqs": "ignore",
+        "url": "https://financialmodelingprep.com/api/v3/earnings-surpises/AAPL?apikey=demo",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "authType": "",
+        "x": 370,
+        "y": 400,
+        "wires": [
+            [
+                "e510b543.033878"
+            ]
+        ]
+    },
+    {
+        "id": "855fad5f.db0868",
+        "type": "debug",
+        "z": "968af95b.b89a4",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1030,
+        "y": 560,
+        "wires": []
+    },
+    {
+        "id": "c2df745d.dd7f5",
+        "type": "inject",
+        "z": "968af95b.b89a4",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 200,
+        "y": 480,
+        "wires": [
+            [
+                "99064ee6.7203c8"
+            ]
+        ]
+    },
+    {
+        "id": "e510b543.033878",
+        "type": "json",
+        "z": "968af95b.b89a4",
+        "name": "",
+        "property": "payload",
+        "action": "",
+        "pretty": true,
+        "x": 570,
+        "y": 480,
+        "wires": [
+            [
+                "fb3117db.89b62"
+            ]
+        ]
+    },
+    {
+        "id": "b03aa389.3603b8",
+        "type": "file",
+        "z": "968af95b.b89a4",
+        "name": "",
+        "filename": "/data/test.json",
+        "appendNewline": true,
+        "createDir": false,
+        "overwriteFile": "true",
+        "encoding": "none",
+        "x": 1020,
+        "y": 280,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "6fe598de.166258",
+        "type": "file in",
+        "z": "968af95b.b89a4",
+        "name": "",
+        "filename": "/data/data.json",
+        "format": "utf8",
+        "chunk": false,
+        "sendError": false,
+        "encoding": "none",
+        "x": 380,
+        "y": 480,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "fb3117db.89b62",
+        "type": "split",
+        "z": "968af95b.b89a4",
+        "name": "",
+        "splt": "\\n",
+        "spltType": "str",
+        "arraySplt": 1,
+        "arraySpltType": "len",
+        "stream": false,
+        "addname": "",
+        "x": 550,
+        "y": 300,
+        "wires": [
+            [
+                "53c80cb5.9d1f94"
             ]
         ]
     }
